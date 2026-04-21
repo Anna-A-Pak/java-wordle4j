@@ -21,7 +21,7 @@ public class WordleGame {
     private int steps;
     private WordleDictionary dictionary;
     private Map<Integer, Map<String, Character>> letters = new HashMap<>();
-    private Map<Integer, Map<Integer, Map <String, Character>>> inputWords = new HashMap<>();
+    private Map<Integer, Map<Integer, Map<String, Character>>> inputWords = new HashMap<>();
     private HashSet<String> helpWords = new HashSet<>();
     private List<String> dictionaryForHelp = new LinkedList<>();
 
@@ -35,7 +35,7 @@ public class WordleGame {
         return steps;
     }
 
-    public String playGame (String inputWord, int lengthWord, PrintWriter pw, Random random) throws InputWordIsBlank,
+    public String playGame(String inputWord, int lengthWord, PrintWriter pw, Random random) throws InputWordIsBlank,
             IncorrectLength, InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty {
         inputWord = dictionary.checkInputWord(inputWord, lengthWord, pw);
         steps--;
@@ -48,7 +48,7 @@ public class WordleGame {
         }
         if (!letters.isEmpty()) {
             inputWords.put(steps, letters);
-            for (Map.Entry<Integer, Map<Integer, Map <String, Character>>> entry : inputWords.entrySet()) {
+            for (Map.Entry<Integer, Map<Integer, Map<String, Character>>> entry : inputWords.entrySet()) {
                 for (Map.Entry<Integer, Map<String, Character>> element : entry.getValue().entrySet()) {
                     for (Map.Entry<String, Character> letter : element.getValue().entrySet()) {
                         if (letter.getKey().equals("^")) {
