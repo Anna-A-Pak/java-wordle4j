@@ -3,18 +3,6 @@ package ru.yandex.practicum;
 import java.io.PrintWriter;
 import java.util.*;
 
-/*
-в этом классе хранится словарь и состояние игры
-    текущий шаг
-    всё что пользователь вводил
-    правильный ответ
-
-в этом классе нужны методы, которые
-    проанализируют совпадение слова с ответом
-    предложат слово-подсказку с учётом всего, что вводил пользователь ранее
-
-не забудьте про специальные типы исключений для игровых и неигровых ошибок
- */
 public class WordleGame {
 
     private String answer;
@@ -35,8 +23,8 @@ public class WordleGame {
         return steps;
     }
 
-    public String playGame(String inputWord, int lengthWord, PrintWriter pw, Random random) throws InputWordIsBlank,
-            IncorrectLength, InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty {
+    public String playGame(String inputWord, int lengthWord, PrintWriter pw) throws InputWordIsBlank, IncorrectLength,
+            InputWordNotRu, WordNotFoundInDictionary {
         inputWord = dictionary.checkInputWord(inputWord, lengthWord, pw);
         steps--;
         return dictionary.compareToAnswer(inputWord, answer, lengthWord, pw, letters);
@@ -68,10 +56,10 @@ public class WordleGame {
         return pickHint(random, dictionaryForHelp, pw);
     }
 
-    private String pickHint(Random random, List<String> dictionaryForHelp, PrintWriter pw) throws RuntimeException {
+    private String pickHint(Random random, List<String> dictionaryForHelp, PrintWriter pw) {
         pw.println("Game log:");
         pw.println("Выполняется подбор подсказки");
-        if (dictionaryForHelp.size() == 1 && helpWords.contains(dictionaryForHelp.getFirst())) {
+        if (dictionaryForHelp.isEmpty()) {
             throw new RuntimeException("Подсказок больше нет");
         }
         int value = random.nextInt(dictionaryForHelp.size());
@@ -83,9 +71,5 @@ public class WordleGame {
         helpWords.add(hintWord);
         pw.println("Подсказка: " + hintWord);
         return dictionaryForHelp.get(value);
-    }
-
-    public HashSet<String> getHintWords() {
-        return helpWords;
     }
 }

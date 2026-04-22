@@ -7,18 +7,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
-/*
-в главном классе нам нужно:
-    создать лог-файл (он должен передаваться во все классы)
-    создать загрузчик словарей WordleDictionaryLoader
-    загрузить словарь WordleDictionary с помощью класса WordleDictionaryLoader
-    затем создать игру WordleGame и передать ей словарь
-    вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
-    вывести состояние игры и конечный результат
- */
 public class Wordle {
     public static final String WORDS_FILE = "words_ru.txt";
     public static final int NUMBER_OF_ATTEMPTS = 6;
@@ -29,17 +21,18 @@ public class Wordle {
         Scanner scanner = new Scanner(System.in, StandardCharsets.UTF_8);
         WordleDictionaryLoader wordleDictionaryLoader;
         WordleDictionary wordleDictionary = new WordleDictionary(new LinkedList<>());
+        List<String> normalWords;
         WordleGame wordleGame;
 
         try (PrintWriter printWriter = new PrintWriter(new FileWriter("log.txt", StandardCharsets.UTF_8))) {
             try {
                 wordleDictionaryLoader = new WordleDictionaryLoader(WORDS_FILE);
                 wordleDictionary = wordleDictionaryLoader.readFile(wordleDictionary, printWriter);
-                wordleDictionary.normaliseDictionary(LENGTH_WORD, printWriter);
-                int value = random.nextInt(wordleDictionary.getWords().size());
-                String answer = wordleDictionary.getWords().get(value);
-                //answer = "герой";
-                wordleGame = new WordleGame(answer, NUMBER_OF_ATTEMPTS, wordleDictionary);
+                normalWords = wordleDictionary.normaliseDictionary(LENGTH_WORD, printWriter);
+                WordleDictionary normalWordleDictionary = new WordleDictionary(normalWords);
+                int value = random.nextInt(normalWordleDictionary.getWords().size());
+                String answer = normalWordleDictionary.getWords().get(value);
+                wordleGame = new WordleGame(answer, NUMBER_OF_ATTEMPTS, normalWordleDictionary);
                 boolean continuePlay = true;
                 printWriter.println("Game log:");
                 printWriter.println("Начало игры");
@@ -53,14 +46,14 @@ public class Wordle {
                             inputWord = wordleGame.playGameGetHint(random, printWriter);
                             System.out.println(inputWord);
                         }
-                        inputWord = wordleGame.playGame(inputWord, LENGTH_WORD, printWriter, random);
+                        inputWord = wordleGame.playGame(inputWord, LENGTH_WORD, printWriter);
                         printWriter.println("Количество оставшихся попыток: " + wordleGame.getSteps() + "\n");
                         if (answer.equals(inputWord)) {
                             continuePlay = false;
                             System.out.println("Победа!");
                         } else if (wordleGame.getSteps() == 0) {
                             continuePlay = false;
-                            System.out.println(answer);
+                            System.out.println("Проигрыш! Загаданное слово: " + answer);
                         } else {
                             System.out.println(inputWord + " осталось попыток: " + wordleGame.getSteps() +
                                     "/" + NUMBER_OF_ATTEMPTS);
@@ -74,6 +67,7 @@ public class Wordle {
                 }
                 printWriter.println("Игра завершена");
             } catch (Exception e) {
+                System.out.println(e.getMessage());
                 printWriter.println(e.getMessage());
                 writeLog(e, printWriter);
             }

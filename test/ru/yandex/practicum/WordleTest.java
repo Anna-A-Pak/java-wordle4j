@@ -4,10 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 class WordleTest {
@@ -17,34 +16,32 @@ class WordleTest {
     private static Random fixedRandom = new Random(3);
 
     @BeforeAll
-    static void beforeAll() throws FileNotFoundException, IOException, DictionaryIsEmpty {
+    static void beforeAll() {
         WordleDictionary wordleDictionary = new WordleDictionary(new LinkedList<>());
+        List<String> normalWords;
         WordleDictionaryLoader wordleDictionaryLoader = new WordleDictionaryLoader("words_ru.txt");
         wordleDictionaryLoader.readFile(wordleDictionary, printWriter);
-        wordleDictionary.normaliseDictionary(5, printWriter);
+        normalWords = wordleDictionary.normaliseDictionary(5, printWriter);
+        WordleDictionary normalWordleDictionary = new WordleDictionary(normalWords);
         String answer = "герой";
-        wordleGame = new WordleGame(answer, 5, wordleDictionary);
+        wordleGame = new WordleGame(answer, 5, normalWordleDictionary);
     }
 
     @Test
-    public void testGetLineHelpForIncorrectWord() throws InputWordIsBlank,
-            IncorrectLength, InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty  {
+    public void testGetLineHelpForIncorrectWord() throws InputWordIsBlank, IncorrectLength, InputWordNotRu,
+            WordNotFoundInDictionary  {
 
-        Assertions.assertEquals("-^+^+", wordleGame.playGame("порей", 5, printWriter,
-                fixedRandom));
+        Assertions.assertEquals("-^+^+", wordleGame.playGame("порей", 5, printWriter));
 
-        Assertions.assertEquals("--^^-", wordleGame.playGame("дверь", 5, printWriter,
-                fixedRandom));
+        Assertions.assertEquals("--^^-", wordleGame.playGame("дверь", 5, printWriter));
 
-        Assertions.assertEquals("-^-^^", wordleGame.playGame("ковёр", 5, printWriter,
-                fixedRandom));
+        Assertions.assertEquals("-^-^^", wordleGame.playGame("ковёр", 5, printWriter));
     }
 
     @Test
-    public void testGetWordHelp() throws InputWordIsBlank,
-            IncorrectLength, InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty {
-        wordleGame.playGame("дверь", 5, printWriter, fixedRandom);
-        wordleGame.playGame("сарай", 5, printWriter, fixedRandom);
+    public void testGetWordHelp() throws InputWordIsBlank, IncorrectLength, InputWordNotRu, WordNotFoundInDictionary {
+        wordleGame.playGame("дверь", 5, printWriter);
+        wordleGame.playGame("сарай", 5, printWriter);
         String wordHelp = wordleGame.playGameGetHint(fixedRandom, printWriter);
 
         Assertions.assertFalse(wordHelp.contains("д"));
@@ -58,10 +55,9 @@ class WordleTest {
     }
 
     @Test
-    public void testIncorrectLength() throws InputWordIsBlank,
-            InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty {
+    public void testIncorrectLength() throws InputWordIsBlank, InputWordNotRu, WordNotFoundInDictionary {
         try {
-            wordleGame.playGame("сок", 5, printWriter, fixedRandom);
+            wordleGame.playGame("сок", 5, printWriter);
         } catch (IncorrectLength e) {
             Assertions.assertEquals("Неверный ввод. Слово должно быть из " + 5 + " букв",
                     e.getMessage());
@@ -69,10 +65,9 @@ class WordleTest {
     }
 
     @Test
-    public void testInputWordIsBlank() throws IncorrectLength,
-            InputWordNotRu, WordNotFoundInDictionary, DictionaryIsEmpty {
+    public void testInputWordIsBlank() throws IncorrectLength, InputWordNotRu, WordNotFoundInDictionary {
         try {
-            wordleGame.playGame("    ", 5, printWriter, fixedRandom);
+            wordleGame.playGame("    ", 5, printWriter);
         } catch (InputWordIsBlank e) {
             Assertions.assertEquals("Неверный ввод. Слово должно быть без пробелов",
                     e.getMessage());
@@ -80,10 +75,9 @@ class WordleTest {
     }
 
     @Test
-    public void testInputWordNotRu() throws IncorrectLength,
-            InputWordIsBlank, WordNotFoundInDictionary, DictionaryIsEmpty {
+    public void testInputWordNotRu() throws IncorrectLength, InputWordIsBlank, WordNotFoundInDictionary {
         try {
-            wordleGame.playGame("fj15g", 5, printWriter, fixedRandom);
+            wordleGame.playGame("fj15g", 5, printWriter);
         } catch (InputWordNotRu e) {
             Assertions.assertEquals("Неверный ввод. Для ввода слова необходимо использовать кириллицу",
                     e.getMessage());
@@ -91,10 +85,9 @@ class WordleTest {
     }
 
     @Test
-    public void testWordNotFoundInDictionary() throws IncorrectLength,
-            InputWordIsBlank, InputWordNotRu, DictionaryIsEmpty {
+    public void testWordNotFoundInDictionary() throws IncorrectLength, InputWordIsBlank, InputWordNotRu {
         try {
-            wordleGame.playGame("сорай", 5, printWriter, fixedRandom);
+            wordleGame.playGame("сорай", 5, printWriter);
         } catch (WordNotFoundInDictionary e) {
             Assertions.assertEquals("Введенное слово не найдено в словаре",
                     e.getMessage());

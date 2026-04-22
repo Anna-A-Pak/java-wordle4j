@@ -1,15 +1,8 @@
 package ru.yandex.practicum;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-/*
-этот класс содержит в себе список слов List<String>
-    его методы похожи на методы списка, но учитывают особенности игры
-    также этот класс может содержать рутинные функции по сравнению слов, букв и т.д.
- */
 public class WordleDictionary {
 
     private List<String> words;
@@ -18,10 +11,9 @@ public class WordleDictionary {
         this.words = words;
     }
 
-    public void normaliseDictionary(int lengthWord, PrintWriter pw) throws DictionaryIsEmpty {
+    public List<String> normaliseDictionary(int lengthWord, PrintWriter pw) {
         pw.println("Program log:");
         pw.println("Попытка нормализовать словарь");
-
         if (words.isEmpty()) {
             throw new DictionaryIsEmpty("Словарь пустой!");
         }
@@ -35,11 +27,14 @@ public class WordleDictionary {
                 i--;
             }
         }
+
+        List<String> normalWords = new LinkedList<>(words);
         pw.println("Словарь нормализован" + "\n");
+        return normalWords;
     }
 
     public String checkInputWord(String inputWord, int lengthWord, PrintWriter pw) throws InputWordIsBlank,
-            IncorrectLength, InputWordNotRu,WordNotFoundInDictionary, DictionaryIsEmpty {
+            IncorrectLength, InputWordNotRu, WordNotFoundInDictionary {
         pw.println("Game log:");
         pw.println("Проверка введенного слова на общую корректность");
         boolean wordInDictionary = false;
@@ -73,30 +68,29 @@ public class WordleDictionary {
 
     public String compareToAnswer(String inputWord, String answer, int lengthWord, PrintWriter pw,
                                    Map<Integer, Map<String, Character>> letters) {
-        StringBuilder sb = new StringBuilder(lengthWord);
+        String space = " ".repeat(lengthWord);
+        StringBuilder sb = new StringBuilder(space);
         pw.println("Выполняется сравнение введенного слов");
         if (answer.equals(inputWord)) {
             pw.println("Сравнение слов выполнено. Слово отгадано");
             return inputWord;
         }
         for (int i = 0; i < inputWord.length(); i++) {
-            Map<String, Character> letter = new HashMap<>();
             for (int j = 0; j < answer.length(); j++) {
                 if (inputWord.charAt(i) == answer.charAt(j)) {
                     if (i == j) {
                         sb.replace(i, i + 1,"+");
-                        letter.put("+", inputWord.charAt(i));
-                        break;
-                    } else {
+                    } else if (sb.charAt(i) == ' ') {
                         sb.replace(i, i + 1,"^");
-                        letter.put("^", inputWord.charAt(i));
-                        break;
                     }
-                } else if (j + 1 == answer.length()) {
+                } else if (j + 1 == answer.length() && sb.charAt(i) == ' ') {
                     sb.replace(i, i + 1, "-");
-                    letter.put("-", inputWord.charAt(i));
                 }
             }
+        }
+        for (int i = 0; i < inputWord.length(); i++) {
+            Map<String, Character> letter = new HashMap<>();
+            letter.put(String.valueOf(sb.charAt(i)), inputWord.charAt(i));
             letters.put(i, letter);
         }
         pw.println("Сравнение слов выполнено. Слово не отгадано. Графическая подсказка: " + sb.toString());
